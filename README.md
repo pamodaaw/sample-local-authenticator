@@ -1,0 +1,1 @@
+# sample-local-authenticator
