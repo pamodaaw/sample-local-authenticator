@@ -42,10 +42,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Optional;
 
-//import java.util.HashMap;
-//import java.util.Map;
-//import java.util.Optional;
-
 /**
  * This is the sample local authenticator which will be used to authenticate the user based on the registered mobile
  * phone number.
@@ -113,7 +109,8 @@ public class SampleLocalAuthenticator extends AbstractApplicationAuthenticator i
             if (userRealm != null) {
                 UniqueIDUserStoreManager userStoreManager = (UniqueIDUserStoreManager) userRealm.getUserStoreManager();
 
-                // Try to authenticate with telephone number.
+                // This custom local authenticator is using the telephone number as the username.
+                // Therefore the login identifier claim is http://wso2.org/claims/telephone.
                     AuthenticationResult authenticationResult = userStoreManager.
                             authenticateWithID(MOBILE_CLAIM_URL, username, password, UserCoreConstants.DEFAULT_PROFILE);
                     if (AuthenticationResult.AuthenticationStatus.SUCCESS == authenticationResult
@@ -137,6 +134,7 @@ public class SampleLocalAuthenticator extends AbstractApplicationAuthenticator i
             throw new AuthenticationFailedException(e.getMessage(), e);
         }
 
+        // If the authentication fails, throws the invalid client credential exception.
         if (!isAuthenticated) {
             if (log.isDebugEnabled()) {
                 log.debug("User authentication failed due to invalid credentials");
@@ -144,6 +142,9 @@ public class SampleLocalAuthenticator extends AbstractApplicationAuthenticator i
             throw new InvalidCredentialsException("User authentication failed due to invalid credentials",
                     User.getUserFromUserName(username));
         }
+
+        // When the user is successfully authenticated, add the user to the authentication context to be used later in
+        // the process.
         if (user != null) {
             username = user.get().getUsername();
         }
